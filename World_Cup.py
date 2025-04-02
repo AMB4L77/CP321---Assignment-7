@@ -2,8 +2,6 @@ import pandas as pd
 import plotly.express as px
 from dash import Dash, dcc, html, Input, Output
 
-server = app.server
-
 world_cup_data = [
     {"Year": 2018, "Winner": "France", "Runner-Up": "Croatia"},
     {"Year": 2014, "Winner": "Germany", "Runner-Up": "Argentina"},
@@ -58,6 +56,7 @@ win_counts["ISO_Code"] = win_counts["Country"].map(country_iso_map)
 
 app = Dash(__name__)
 app.title = "FIFA World Cup Dashboard"
+server = app.server  # Correct placement
 
 app.layout = html.Div([
     html.H1("FIFA World Cup Winners Dashboard", style={"textAlign": "center"}),
@@ -91,7 +90,7 @@ def update_map(selected_country):
         locations="ISO_Code",
         color="Wins",
         hover_name="Country",
-        color_continuous_scale="Purples",
+        color_continuous_scale="Purples",  # purple theme
         title="World Cup Wins by Country"
     )
     fig.update_layout(geo=dict(showframe=False, showcoastlines=False))
