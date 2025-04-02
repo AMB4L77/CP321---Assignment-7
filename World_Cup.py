@@ -2,6 +2,8 @@ import pandas as pd
 import plotly.express as px
 from dash import Dash, dcc, html, Input, Output
 
+server = app.server
+
 world_cup_data = [
     {"Year": 2018, "Winner": "France", "Runner-Up": "Croatia"},
     {"Year": 2014, "Winner": "Germany", "Runner-Up": "Argentina"},
