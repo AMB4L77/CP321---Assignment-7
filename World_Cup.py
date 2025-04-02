@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import plotly.express as px
 from dash import Dash, dcc, html, Input, Output
 
@@ -27,36 +28,28 @@ world_cup_data = [
 ]
 
 for row in world_cup_data:
-    if row["Winner"] in ["West Germany"]:
+    if row["Winner"] == "West Germany":
         row["Winner"] = "Germany"
-    if row["Runner-Up"] in ["West Germany"]:
+    if row["Runner-Up"] == "West Germany":
         row["Runner-Up"] = "Germany"
 
 df = pd.DataFrame(world_cup_data)
 
-win_counts = df["Winner"].value_counts().reset_index()
-win_counts.columns = ["Country", "Wins"]
+winners = df["Winner"].values
+countries, counts = np.unique(winners, return_counts=True)
+win_counts = pd.DataFrame({"Country": countries, "Wins": counts})
 
 country_iso_map = {
-    "Brazil": "BRA",
-    "Germany": "DEU",
-    "Italy": "ITA",
-    "Argentina": "ARG",
-    "France": "FRA",
-    "Uruguay": "URY",
-    "England": "GBR",
-    "Spain": "ESP",
-    "Netherlands": "NLD",
-    "Croatia": "HRV",
-    "Sweden": "SWE",
-    "Hungary": "HUN",
-    "Czechoslovakia": "CZE"
+    "Brazil": "BRA", "Germany": "DEU", "Italy": "ITA", "Argentina": "ARG",
+    "France": "FRA", "Uruguay": "URY", "England": "GBR", "Spain": "ESP",
+    "Netherlands": "NLD", "Croatia": "HRV", "Sweden": "SWE",
+    "Hungary": "HUN", "Czechoslovakia": "CZE"
 }
 win_counts["ISO_Code"] = win_counts["Country"].map(country_iso_map)
 
 app = Dash(__name__)
 app.title = "FIFA World Cup Dashboard"
-server = app.server  # Correct placement
+server = app.server
 
 app.layout = html.Div([
     html.H1("FIFA World Cup Winners Dashboard", style={"textAlign": "center"}),
@@ -65,17 +58,15 @@ app.layout = html.Div([
 
     html.Label("Select a Country:", style={"marginTop": "20px"}),
     dcc.Dropdown(
-        options=[{"label": country, "value": country} for country in sorted(win_counts["Country"])],
-        id="country-dropdown",
-        placeholder="Select a country"
+        options=[{"label": c, "value": c} for c in sorted(win_counts["Country"])],
+        id="country-dropdown", placeholder="Select a country"
     ),
     html.Div(id="country-output", style={"marginTop": "10px", "fontWeight": "bold"}),
 
     html.Label("Select a Year:", style={"marginTop": "20px"}),
     dcc.Dropdown(
-        options=[{"label": year, "value": year} for year in sorted(df["Year"], reverse=True)],
-        id="year-dropdown",
-        placeholder="Select a year"
+        options=[{"label": y, "value": y} for y in sorted(df["Year"], reverse=True)],
+        id="year-dropdown", placeholder="Select a year"
     ),
     html.Div(id="year-output", style={"marginTop": "10px", "fontWeight": "bold"})
 ])
@@ -90,7 +81,7 @@ def update_map(selected_country):
         locations="ISO_Code",
         color="Wins",
         hover_name="Country",
-        color_continuous_scale="Purples",  # purple theme
+        color_continuous_scale="Purples",
         title="World Cup Wins by Country"
     )
     fig.update_layout(geo=dict(showframe=False, showcoastlines=False))
